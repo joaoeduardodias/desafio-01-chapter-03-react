@@ -1,1 +1,45 @@
-// TODO
+.postContainer {
+
+  > a {
+    display: block;
+  }
+  a + a {
+    margin-top: 3rem;
+  }
+}
+.post {
+
+  strong {
+    font-size: 1.75rem;
+    font-weight: 700;
+    color: var(--heading);
+  }
+  p {
+    font-size: 1.125rem;
+    color: var(--body);
+    margin-top: 0.5rem;
+  }
+  ul {
+    display: flex;
+    list-style: none;
+    margin-top: 1.5rem;
+    color: var(--info);
+    li {
+      font-size: 0.875rem;
+      svg {
+        margin-right: 0.5rem;
+      }
+      + li {
+      margin-left: 1.5rem;
+     }
+    }
+  }
+
+}
+.loadPosts {
+  color: var(--highlight);
+  margin-top: 4rem;
+  font-size: 1.125rem;
+  border: none;
+  background: transparent;
+}
