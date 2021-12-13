@@ -5,6 +5,7 @@ import Prismic from '@prismicio/client';
 import { useState } from 'react';
 import { format } from 'date-fns';
 import ptBR from 'date-fns/locale/pt-BR';
+import Head from 'next/head';
 import Header from '../components/Header';
 import { getPrismicClient } from '../services/prismic';
 import commonStyles from '../styles/common.module.scss';
@@ -80,6 +81,9 @@ export default function Home({ postsPagination }: HomeProps): JSX.Element {
 
   return (
     <>
+      <Head>
+        <title>Home | spacetraveling</title>
+      </Head>
       <Header />
       <main className={`${commonStyles.container} ${styles.postContainer}`}>
         {posts.map(post => (
@@ -103,13 +107,15 @@ export default function Home({ postsPagination }: HomeProps): JSX.Element {
           </Link>
         ))}
 
-        <button
-          onClick={handleNextPage}
-          type="button"
-          className={styles.loadPosts}
-        >
-          Carregar mais posts
-        </button>
+        {next_page && (
+          <button
+            onClick={handleNextPage}
+            type="button"
+            className={styles.loadPosts}
+          >
+            Carregar mais posts
+          </button>
+        )}
       </main>
     </>
   );
