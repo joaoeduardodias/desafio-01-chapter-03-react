@@ -14,7 +14,7 @@
   ul {
     list-style: none;
     display: flex;
-    margin-top: 1.5rem;
+    margin: 1.5rem  0 1rem 0;
     li {
       margin-right: 1.5rem;
       font-size: 1rem;
@@ -23,6 +23,11 @@
         margin-right: 0.5rem;
       }
     }
+  }
+  time {
+    font-size: 0.825rem;
+    color: var(--info);
+    font-style: italic;
   }
 }
 .postContent {
@@ -54,3 +59,38 @@
   }
 }
 
+.footer {
+  margin-top: 3.75rem;
+  >div:first-child {
+  border-top: 1px solid var(--body);
+  opacity: 0.1;
+  }
+
+
+  .navPosts {
+    margin:3rem 0  5rem 0;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    div {
+      text-align: right;
+      font-size: 1.125rem;
+      color: var(--heading);
+      line-height: 1.375rem;
+      width: 11rem;
+      height: 3.5rem;
+      cursor: pointer;
+
+      &:first-child {
+        text-align: left;
+      }
+      a {
+        margin-top: 0.5rem;
+        color: var(--highlight);
+        font-size: 1rem;
+        font-weight: 600;
+      }
+    }
+  }
+
+}

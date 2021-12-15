@@ -15,8 +15,10 @@ import { getPrismicClient } from '../../services/prismic';
 import commonStyles from '../../styles/common.module.scss';
 import styles from './post.module.scss';
 import Header from '../../components/Header';
+import { Comments } from '../../components/Comments';
 
 interface Post {
+  last_publication_date: string | null;
   first_publication_date: string | null;
   data: {
     title: string;
@@ -36,9 +38,27 @@ interface Post {
 interface PostProps {
   post: Post;
   preview: boolean;
+  navigation: {
+    prevPost: {
+      uid: string;
+      data: {
+        title: string;
+      };
+    }[];
+    nextPost: {
+      uid: string;
+      data: {
+        title: string;
+      };
+    }[];
+  };
 }
 
-export default function Post({ post, preview }: PostProps): JSX.Element {
+export default function Post({
+  post,
+  preview,
+  navigation,
+}: PostProps): JSX.Element {
   const totalWords = post.data.content.reduce((total, contentItem) => {
     total += contentItem.heading.split(' ').length;
 
@@ -61,6 +81,18 @@ export default function Post({ post, preview }: PostProps): JSX.Element {
       locale: ptBR,
     }
   );
+
+  const isEditPost = post.first_publication_date !== post.last_publication_date;
+  let editDate: string;
+  if (isEditPost) {
+    editDate = format(
+      new Date(post.last_publication_date),
+      "'* editado em' dd MMM yyyy', às ' H:mm ",
+      {
+        locale: ptBR,
+      }
+    );
+  }
 
   return (
     <>
@@ -85,6 +117,7 @@ export default function Post({ post, preview }: PostProps): JSX.Element {
               <FiClock /> {`${readTime} min`}
             </li>
           </ul>
+          <time>{editDate}</time>
         </div>
         {post.data.content.map(content => (
           <article key={content.heading} className={styles.postContent}>
@@ -96,13 +129,37 @@ export default function Post({ post, preview }: PostProps): JSX.Element {
             />
           </article>
         ))}
-        {preview && (
-          <aside className={commonStyles.exitPreview}>
-            <Link href="/api/exit-preview">
-              <a>Sair do modo Preview</a>
-            </Link>
-          </aside>
-        )}
+
+        <footer className={styles.footer}>
+          <div />
+          <div className={styles.navPosts}>
+            {navigation?.prevPost.length > 0 && (
+              <div>
+                <p>{navigation.prevPost[0].data.title}</p>
+                <Link href={`/post/${navigation.prevPost[0].uid}`}>
+                  <a>Post anterior</a>
+                </Link>
+              </div>
+            )}
+            {navigation?.nextPost.length > 0 && (
+              <div>
+                <p>{navigation.nextPost[0].data.title}</p>
+                <Link href={`/post/${navigation.nextPost[0].uid}`}>
+                  <a>Próximo post</a>
+                </Link>
+              </div>
+            )}
+          </div>
+          <Comments />
+
+          {preview && (
+            <aside className={commonStyles.exitPreview}>
+              <Link href="/api/exit-preview">
+                <a>Sair do modo Preview</a>
+              </Link>
+            </aside>
+          )}
+        </footer>
       </main>
     </>
   );
@@ -134,11 +191,26 @@ export const getStaticProps: GetStaticProps = async context => {
   const response = await prismic.getByUID('posts', String(slug), {
     ref: previewData?.ref || null,
   });
+  const prevPost = await prismic.query(
+    [Prismic.Predicates.at('document.type', 'posts')],
+    {
+      after: response.id,
+      pageSize: 1,
+    }
+  );
+  const nextPost = await prismic.query(
+    [Prismic.Predicates.at('document.type', 'posts')],
+    {
+      after: response.id,
+      orderings: '[document.first_publication_date]',
+      pageSize: 1,
+    }
+  );
 
   const post = {
     uid: response.uid,
     first_publication_date: response.first_publication_date,
-
+    last_publication_date: response.last_publication_date,
     data: {
       title: response.data.title,
       subtitle: response.data.subtitle,
@@ -158,6 +230,10 @@ export const getStaticProps: GetStaticProps = async context => {
     props: {
       post,
       preview,
+      navigation: {
+        prevPost: prevPost?.results,
+        nextPost: nextPost?.results,
+      },
     },
     revalidate: 60 * 60 * 24, // 1 dia
   };
